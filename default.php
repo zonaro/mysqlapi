@@ -80,5 +80,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo json_encode(['error' => $e->getMessage()]);
     }
     } else {
-        echo '<script type="text/javascript">window.location.href = "https://github.com/zonaro/mysqlapi";</script>';
-    }
+        header('Location: https://github.com/zonaro/mysqlapi');
+        exit();
+        }
