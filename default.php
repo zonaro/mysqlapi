@@ -1,11 +1,11 @@
 <?php
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        try {
+    try {
         header('Content-Type: application/json');
         $headers = getallheaders();
         $connectionString = isset($headers['Connection-String']) ? $headers['Connection-String'] : null;
-        $responseType = isset($_GET['responseType']) ? $_GET['responseType'] : null;
+        $responseType = isset($headers['Response-Type']) ? $headers['Response-Type'] : null;
 
         if ($connectionString) {
             $query = file_get_contents('php://input');
@@ -18,57 +18,77 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     exit();
                 }
 
-                $data = [];
-                if ($mysqli->multi_query($query)) {
-                    do {
-                        if ($result = $mysqli->store_result()) {
-                            $dataset = [];
-                            while ($row = $result->fetch_assoc()) {
-                                $dataset[] = $row;
-                            }
-                            $data[] = $dataset;
-                            $result->free();
-                        }
-                    } while ($mysqli->more_results() && $mysqli->next_result());
-                } else {
-                    echo json_encode(['error' => 'Query failed: ' . $mysqli->error]);
+                // Prepare the statement
+                $stmt = $mysqli->prepare($query);
+                if ($stmt === false) {
+                    echo json_encode(['error' => 'Prepare failed: ' . $mysqli->error]);
                     exit();
                 }
 
+                // Bind parameters from query string
+                $params = [];
+                $types = '';
+                foreach ($_GET as $key => $value) {
+                    $types .= 's'; // Assuming all parameters are strings
+                    $params[] = &$value;
+                }
+                if (!empty($params)) {
+                    array_unshift($params, $types);
+                    call_user_func_array([$stmt, 'bind_param'], $params);
+                }
+
+                // Execute the statement
+                if (!$stmt->execute()) {
+                    echo json_encode(['error' => 'Execute failed: ' . $stmt->error]);
+                    exit();
+                }
+
+                // Fetch results
+                $result = $stmt->get_result();
+                $data = [];
+                while ($row = $result->fetch_assoc()) {
+                    $data[] = $row;
+                }
+
+                // Process response type
                 switch ($responseType) {
                     case 'value':
                     case 'single':
-                        echo json_encode($data[0][0][array_keys($data[0][0])[0]]);
+                        echo json_encode($data[0][array_keys($data[0])[0]]);
                         break;
                     case 'pair':
                     case 'pairs':
                         $pairs = [];
-                        foreach ($data[0] as $row) {
+                        foreach ($data as $row) {
                             $pairs[] = [array_values($row)[0] => array_values($row)[count($row) - 1]];
                         }
                         echo json_encode($pairs);
                         break;
                     case 'table':
-                        echo json_encode($data[0]);
+                        echo json_encode($data);
                         break;
                     case 'row':
                     case 'first':
-                        echo json_encode($data[0][0]);
+                        echo json_encode($data[0]);
                         break;
                     case 'list':
                     case 'array':
                     case 'values':
                         $list = [];
-                        foreach ($data[0] as $row) {
+                        foreach ($data as $row) {
                             $list[] = array_values($row)[0];
                         }
                         echo json_encode($list);
+                        break;
+                    case 'none':
+                        echo json_encode(['affected_rows' => $stmt->affected_rows]);
                         break;
                     default:
                         echo json_encode($data);
                         break;
                 }
 
+                $stmt->close();
                 $mysqli->close();
             } else {
                 echo json_encode(['error' => 'No query provided']);
@@ -79,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } catch (Exception $e) {
         echo json_encode(['error' => $e->getMessage()]);
     }
-    } else {
-        header('Location: https://github.com/zonaro/mysqlapi');
-        exit();
-        }
+} else {
+    header('Location: https://github.com/zonaro/mysqlapi');
+    exit();
+}

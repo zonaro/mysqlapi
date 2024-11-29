@@ -1,6 +1,6 @@
 # API Documentation
 
-Esta API aceita requisições POST com um payload em texto simples contendo uma consulta SQL. A requisição deve incluir um cabeçalho com a string de conexão para o banco de dados.
+Esta API aceita requisições POST com um payload em texto simples contendo uma consulta SQL. A requisição deve incluir cabeçalhos com a string de conexão para o banco de dados e o tipo de resposta desejado.
 
 ## Requisição
 
@@ -8,13 +8,18 @@ Esta API aceita requisições POST com um payload em texto simples contendo uma 
 
 **Cabeçalhos:**
 - **Connection-String:** A string de conexão para o banco de dados.
+- **Response-Type:** O tipo de resposta desejado (opcional).
 
-**URL:** `http://<seu-servidor>`
+**URL:** `http://sqlapi.kaizonaro.com`
 
 **Corpo:**
 ```sql
-SELECT `column1`, `column2`, ... FROM `table`;
+SELECT `column1`, `column2`, ... FROM `table` WHERE `column3` = ?;
 ```
+
+**Parâmetros da Query String:**
+
+Qualquer parâmetro enviado na query string será utilizado como parâmetro da consulta SQL. Por exemplo, se a URL for `http://sqlapi.kaizonaro.com?param1=value1&param2=value2`, os valores `value1` e `value2` serão utilizados como parâmetros na consulta SQL.
 
 ## Resposta
 
@@ -50,16 +55,16 @@ A resposta será no formato JSON.
 }
 ```
 
-## Parâmetros de Consulta
+## Tipos de Resposta
 
-Você pode usar os seguintes parâmetros de consulta para alterar o formato da resposta:
+Você pode usar os seguintes valores para o cabeçalho `Response-Type` para alterar o formato da resposta:
 
-- **responseType=single:** Retorna apenas o primeiro item da primeira coluna do primeiro conjunto de dados.
+- **single:** Retorna apenas o primeiro item da primeira coluna do primeiro conjunto de dados.
 ```json
 "value1"
 ```
 
-- **responseType=pairs:** Retorna um array JSON de objetos com a primeira coluna como chaves e a última coluna como valores.
+- **pairs:** Retorna um array JSON de objetos com a primeira coluna como chaves e a última coluna como valores.
 ```json
 [
     {"value1": "value2"},
@@ -68,7 +73,7 @@ Você pode usar os seguintes parâmetros de consulta para alterar o formato da r
 ]
 ```
 
-- **responseType=table:** Retorna apenas o primeiro conjunto de dados.
+- **table:** Retorna apenas o primeiro conjunto de dados.
 ```json
 [
     {
@@ -80,7 +85,7 @@ Você pode usar os seguintes parâmetros de consulta para alterar o formato da r
 ]
 ```
 
-- **responseType=row:** Retorna apenas a primeira linha do primeiro conjunto de dados.
+- **row:** Retorna apenas a primeira linha do primeiro conjunto de dados.
 ```json
 {
     "column1": "value1",
@@ -89,7 +94,7 @@ Você pode usar os seguintes parâmetros de consulta para alterar o formato da r
 }
 ```
 
-- **responseType=list:** Retorna um array com todos os valores da primeira coluna.
+- **list:** Retorna um array com todos os valores da primeira coluna.
 ```json
 [
     "value1",
@@ -98,7 +103,14 @@ Você pode usar os seguintes parâmetros de consulta para alterar o formato da r
 ]
 ```
 
-- **responseType=default:** Retorna todos os conjuntos de dados como um array JSON (comportamento padrão).
+- **none:** Executa a consulta sem retornar um conjunto de resultados, retornando apenas o número de linhas afetadas.
+```json
+{
+    "affected_rows": 5
+}
+```
+
+- **default:** Retorna todos os conjuntos de dados como um array JSON (comportamento padrão).
 ```json
 [
     [
