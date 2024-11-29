@@ -3,7 +3,8 @@
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Connection-String, Response-Type');
-
+ echo $_SERVER["REQUEST_METHOD"] ;
+ 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     try {
         header('Content-Type: application/json');
@@ -104,6 +105,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         echo json_encode(['error' => $e->getMessage()]);
     }
 } else {
-    header('Location: https://github.com/zonaro/mysqlapi');
+    // header('Location: https://github.com/zonaro/mysqlapi');
     exit();
 }
