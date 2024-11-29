@@ -51,6 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     echo json_encode($data[0]);
                     break;
                 case 'row':
+                case 'first':
                     echo json_encode($data[0][0]);
                     break;
                 case 'list':
