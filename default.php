@@ -75,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo json_encode(['error' => 'No connection string provided']);
     }
 } else {
-    header('Location: https://github.com/zonaro/mysqlapi');
-    exit();    
+    echo '<script type="text/javascript">window.location.href = "https://github.com/zonaro/mysqlapi";</script>';
+ 
 }
  
