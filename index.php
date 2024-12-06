@@ -4,7 +4,6 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Connection-String, Response-Type');
 
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         header('Content-Type: application/json');
@@ -28,18 +27,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($stmt === false) {
                     echo json_encode(['error' => 'Prepare failed: ' . $mysqli->error]);
                     exit();
-                }
-
-                // Bind parameters from query string
-                $params = [];
-                $types = '';
-                foreach ($_GET as $key => $value) {
-                    $types .= 's'; // Assuming all parameters are strings
-                    $params[] = &$value;
-                }
-                if (!empty($params)) {
-                    array_unshift($params, $types);
-                    call_user_func_array([$stmt, 'bind_param'], $params);
                 }
 
                 // Execute the statement

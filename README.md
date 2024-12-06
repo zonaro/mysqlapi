@@ -17,10 +17,6 @@ Esta API aceita requisições POST com um payload em texto simples contendo uma 
 SELECT `column1`, `column2`, ... FROM `table` WHERE `column3` = ?;
 ```
 
-**Parâmetros da Query String:**
-
-Qualquer parâmetro enviado na query string será utilizado como parâmetro da consulta SQL. Por exemplo, se a URL for `http://sqlapi.kaizonaro.com?param1=value1&param2=value2`, os valores `value1` e `value2` serão utilizados como parâmetros na consulta SQL.
-
 ## Resposta
 
 A resposta será no formato JSON.
