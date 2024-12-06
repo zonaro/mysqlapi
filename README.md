@@ -1,13 +1,18 @@
 # MySQLAPI
 
-Esta API aceita requisições POST com um payload em texto simples contendo uma consulta SQL. A requisição deve incluir cabeçalhos com a string de conexão para o banco de dados e o tipo de resposta desejado.
+Esta API aceita requisições POST com um payload em texto simples contendo uma consulta SQL. A requisição deve incluir cabeçalhos com os parâmetros de conexão para o banco de dados e o tipo de resposta desejado.
 
 ## Requisição
 
 **Método:** POST
 
 **Cabeçalhos:**
-- **Connection-String:** A string de conexão para o banco de dados.
+- **DB-Hostname:** O hostname do banco de dados.
+- **DB-Username:** O nome de usuário do banco de dados.
+- **DB-Password:** A senha do banco de dados (opcional).
+- **DB-Database:** O nome do banco de dados.
+- **DB-Port:** A porta do banco de dados (opcional).
+- **DB-Socket:** O socket do banco de dados (opcional).
 - **Response-Type:** O tipo de resposta desejado (opcional).
 
 **URL:** `http://sqlapi.kaizonaro.com`
