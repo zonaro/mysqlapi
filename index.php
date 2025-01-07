@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($hostname !== '' && $username !== '' && $database !== '') {
             $query = file_get_contents('php://input');
-            
+
             if ($query === false) {
                 throw new Exception('No query provided');
             }
@@ -35,23 +35,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception('Connection failed: ' . $mysqli->connect_error);
             }
 
-            // Prepare the statement
-            $stmt = $mysqli->prepare($query);
-            if ($stmt === false) {
-                throw new Exception('Prepare failed: ' . $mysqli->error);
-            }
-
-            // Execute the statement
-            if (!$stmt->execute()) {
-                throw new Exception('Execute failed: ' . $stmt->error);
+            // Execute the multi query
+            if (!$mysqli->multi_query($query)) {
+                throw new Exception('Query failed: ' . $mysqli->error);
             }
 
             // Fetch results
-            $result = $stmt->get_result();
             $data = [];
-            while ($row = $result->fetch_assoc()) {
-                $data[] = $row;
-            }
+            do {
+                if ($result = $mysqli->store_result()) {
+                    while ($row = $result->fetch_assoc()) {
+                        $data[] = $row;
+                    }
+                    $result->free();
+                }
+            } while ($mysqli->more_results() && $mysqli->next_result());
 
             //lowercase and trim responseType
             $responseType = strtolower(trim($responseType));
@@ -76,6 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     break;
                 case 'row':
                 case 'first':
+                    //TODO: fix this
                     echo json_encode($data[0][0]);
                     break;
                 case 'list':
@@ -95,7 +94,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     break;
             }
 
-            $stmt->close();
             $mysqli->close();
         } else {
             throw new Exception('Required connection parameters missing');
