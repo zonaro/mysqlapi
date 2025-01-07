@@ -43,10 +43,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Fetch results
             $data = [];
             do {
+                $data2 = [];
                 if ($result = $mysqli->store_result()) {
                     while ($row = $result->fetch_assoc()) {
-                        $data[] = $row;
+                        $data2[] = $row;
                     }
+                    $data[] = $data2;
                     $result->free();
                 }
             } while ($mysqli->more_results() && $mysqli->next_result());
@@ -58,12 +60,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             switch ($responseType) {
                 case 'value':
                 case 'single':
-                    echo json_encode($data[0][array_keys($data[0])[0]]);
+                    $firstRow = $data[0][0];
+                    echo json_encode($firstRow[0][array_keys($firstRow[0])[0]]);
                     break;
                 case 'pair':
                 case 'pairs':
                     $pairs = [];
-                    foreach ($data as $row) {
+                    foreach ($data[0] as $row) {
                         $pairs[] = [array_values($row)[0] => array_values($row)[count($row) - 1]];
                     }
                     echo json_encode($pairs);
@@ -73,21 +76,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     echo json_encode($data[0]);
                     break;
                 case 'row':
-                case 'first':
-                    //TODO: fix this
+                case 'first':                   
                     echo json_encode($data[0][0]);
                     break;
                 case 'list':
                 case 'array':
                 case 'values':
                     $list = [];
-                    foreach ($data as $row) {
+                    foreach ($data as $row[0]) {
                         $list[] = array_values($row)[0];
                     }
                     echo json_encode($list);
-                    break;
-                case 'none':
-                    echo json_encode(['affected_rows' => $stmt->affected_rows]);
                     break;
                 default:
                     echo json_encode($data);
