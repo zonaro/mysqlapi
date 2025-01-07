@@ -12,6 +12,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $username = isset($headers['DB-Username']) ? trim($headers['DB-Username']) : null;
         $password = isset($headers['DB-Password']) ? trim($headers['DB-Password']) : null;
         $database = isset($headers['DB-Database']) ? trim($headers['DB-Database']) : null;
+        $setNames = isset($headers['SetNames']) ? trim($headers['SetNames']) : [];
+        $setNames = preg_split('/[;,]/', $setNames);
+        $setNames = array_map('trim', $setNames);
+
         $port = isset($headers['DB-Port']) ? trim($headers['DB-Port']) : null;
         $socket = isset($headers['DB-Socket']) ? trim($headers['DB-Socket']) : null;
         $responseType = isset($headers['Response-Type']) ? $headers['Response-Type'] : null;
@@ -73,6 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     break;
                 case 'table':
                 case 'view':
+                case 'set':
                     echo json_encode($data[0]);
                     break;
                 case 'row':
@@ -88,6 +93,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $list[] = array_values($row)[0];
                     }
                     echo json_encode($list);
+                    break;
+                case 'namedsets':
+                case 'namedset':
+                    $namedSets = [];
+                    foreach ($data as $set) {
+                        //for each set in data, get a setName from $setNames at same index. if index wont exist, set "set{index}" as name
+                        $setName = isset($setNames[key($data)]) ? $setNames[key($data)] : 'set' . key($data);
+                        $namedSets[$setName] = $set;
+                    }
                     break;
                 default:
                     echo json_encode($data);
