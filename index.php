@@ -109,10 +109,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     break;
                 case 'namedrows':
                 case 'namedrow':
-                    $namedSets = [];
+                    $namedRows = [];
                     foreach ($data as $index => $set) {
-                        $setName = isset($setNames[$index]) ? $setNames[$index] : 'row' . $index;
-                        $namedSets[$setName] = $set[0];
+                        $rowName = isset($setNames[$index]) ? $setNames[$index] : 'row' . $index;
+                        $namedRows[$rowName] = $set[0];
                     }
                     break;
                 default:
