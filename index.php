@@ -18,6 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($hostname !== '' && $username !== '' && $database !== '') {
             $query = file_get_contents('php://input');
+            
             if ($query === false) {
                 throw new Exception('No query provided');
             }
