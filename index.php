@@ -102,11 +102,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 case 'namedset':
                     $namedSets = [];
                     foreach ($data as $index => $set) {
-                        //for each set in data, get a setName from $setNames at same index. if index wont exist, set "set{index}" as name
                         $setName = isset($setNames[$index]) ? $setNames[$index] : 'set' . $index;
                         $namedSets[$setName] = $set;
                     }
                     echo json_encode($namedSets);
+                    break;
+                case 'namedrows':
+                case 'namedrow':
+                    $namedSets = [];
+                    foreach ($data as $index => $set) {
+                        $setName = isset($setNames[$index]) ? $setNames[$index] : 'row' . $index;
+                        $namedSets[$setName] = $set[0];
+                    }
                     break;
                 default:
                     echo json_encode($data);
