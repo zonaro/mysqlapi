@@ -12,9 +12,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $username = isset($headers['DB-Username']) ? trim($headers['DB-Username']) : null;
         $password = isset($headers['DB-Password']) ? trim($headers['DB-Password']) : null;
         $database = isset($headers['DB-Database']) ? trim($headers['DB-Database']) : null;
-        $setNames = isset($headers['SetNames']) ? trim($headers['SetNames']) : [];
-        $setNames = preg_split('/[;,]/', $setNames);
-        $setNames = array_map('trim', $setNames);
+        if (isset($headers['SetNames'])) {
+            $setNames =  trim($headers['SetNames']);
+            $setNames = preg_split('/[;,]/', $setNames);
+            $setNames = array_map('trim', $setNames);
+        } else {
+            $setNames = [];
+        }
 
         $port = isset($headers['DB-Port']) ? trim($headers['DB-Port']) : null;
         $socket = isset($headers['DB-Socket']) ? trim($headers['DB-Socket']) : null;
