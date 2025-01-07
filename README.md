@@ -13,7 +13,8 @@ Esta API aceita requisições POST com um payload em texto simples contendo uma 
 - **DB-Database:** O nome do banco de dados.
 - **DB-Port:** A porta do banco de dados (opcional).
 - **DB-Socket:** O socket do banco de dados (opcional).
-- **Response-Type:** O tipo de resposta desejado (opcional).
+- **Response-Type:** O tipo de resposta desejado (opcional, padrão é SETS).
+- **Data-Names:** Uma lista separada por virgula (,) ou ponto e virgula (;) com os nomes de cada conjunto de dados (para `namedSets` e `namedRows`).
 
 **URL:** `http://sqlapi.kaizonaro.com`
 
@@ -108,6 +109,44 @@ Você pode usar os seguintes valores para o cabeçalho `Response-Type` para alte
 ```json
 {
     "affected_rows": 5
+}
+```
+
+- **namedsets:** Retorna conjuntos de dados nomeados.
+```json
+{
+    "set1": [
+        {
+            "column1": "value1",
+            "column2": "value2",
+            ...
+        },
+        ...
+    ],
+    "set2": [
+        {
+            "column1": "value1",
+            "column2": "value2",
+            ...
+        },
+        ...
+    ]
+}
+```
+
+- **namedrows:** Retorna linhas nomeadas.
+```json
+{
+    "row1": {
+        "column1": "value1",
+        "column2": "value2",
+        ...
+    },
+    "row2": {
+        "column1": "value1",
+        "column2": "value2",
+        ...
+    }
 }
 ```
 
