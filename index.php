@@ -106,6 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $setName = isset($setNames[key($data)]) ? $setNames[key($data)] : 'set' . key($data);
                         $namedSets[$setName] = $set;
                     }
+                    echo json_encode($namedSets);
                     break;
                 default:
                     echo json_encode($data);
