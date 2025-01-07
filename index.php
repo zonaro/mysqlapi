@@ -76,14 +76,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     echo json_encode($data[0]);
                     break;
                 case 'row':
-                case 'first':                   
+                case 'first':
                     echo json_encode($data[0][0]);
                     break;
                 case 'list':
                 case 'array':
                 case 'values':
                     $list = [];
-                    foreach ($data as $row[0]) {
+                    // put in the list the first value of each row
+                    foreach ($data[0] as $row) {
                         $list[] = array_values($row)[0];
                     }
                     echo json_encode($list);
