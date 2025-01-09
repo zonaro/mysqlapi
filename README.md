@@ -104,14 +104,6 @@ Você pode usar os seguintes valores para o cabeçalho `Response-Type` para alte
     ...
 ]
 ```
-
-- **none:** Executa a consulta sem retornar um conjunto de resultados, retornando apenas o número de linhas afetadas.
-```json
-{
-    "affected_rows": 5
-}
-```
-
 - **namedsets:** Retorna conjuntos de dados nomeados.
 ```json
 {
