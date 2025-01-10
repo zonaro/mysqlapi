@@ -1,4 +1,4 @@
-# MySQLAPI
+# MySqlApi
 
 Esta API aceita requisições POST com um payload em texto simples contendo uma consulta SQL. A requisição deve incluir cabeçalhos com os parâmetros de conexão para o banco de dados e o tipo de resposta desejado.
 
