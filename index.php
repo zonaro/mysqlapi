@@ -129,7 +129,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'sql' => $query,
                 'status' => $status,
                 'responseType' => $responseType,
-                'message' => '',
+                'dataNames' => $setNames,
+                'message' => $status === 'EMPTY' ? 'No data found' : 'Data found',
                 'data' => $responseData
             ]);
 
@@ -142,6 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'sql' => isset($query) ? $query : '',
             'status' => 'ERROR',
             'responseType' => $responseType,
+            'dataNames' => $setNames,
             'message' => $e->getMessage(),
             'data' => null
         ]);
