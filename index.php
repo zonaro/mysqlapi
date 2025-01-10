@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $port = isset($headers['DB-Port']) ? trim($headers['DB-Port']) : null;
         $socket = isset($headers['DB-Socket']) ? trim($headers['DB-Socket']) : null;
-        $responseType = isset($headers['Response-Type']) ? $headers['Response-Type'] : null;
+        $responseType = isset($headers['Response-Type']) ? $headers['Response-Type'] : 'sets';
 
         if ($hostname !== '' && $username !== '' && $database !== '') {
             $query = file_get_contents('php://input');
@@ -65,11 +65,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $responseType = strtolower(trim($responseType));
 
             // Process response type
+            $responseData = [];
+            $status = 'OK';
             switch ($responseType) {
                 case 'value':
                 case 'single':
                     $firstRow = $data[0][0];
-                    echo json_encode($firstRow[0][array_keys($firstRow[0])[0]]);
+                    $responseData = $firstRow[0][array_keys($firstRow[0])[0]];
                     break;
                 case 'pair':
                 case 'pairs':
@@ -77,16 +79,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     foreach ($data[0] as $row) {
                         $pairs[] = [array_values($row)[0] => array_values($row)[count($row) - 1]];
                     }
-                    echo json_encode($pairs);
+                    $responseData = $pairs;
                     break;
                 case 'table':
                 case 'view':
                 case 'set':
-                    echo json_encode($data[0]);
+                    $responseData = $data[0];
                     break;
                 case 'row':
                 case 'first':
-                    echo json_encode($data[0][0]);
+                    $responseData = $data[0][0];
                     break;
                 case 'list':
                 case 'array':
@@ -96,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     foreach ($data[0] as $row) {
                         $list[] = array_values($row)[0];
                     }
-                    echo json_encode($list);
+                    $responseData = $list;
                     break;
                 case 'namedsets':
                 case 'namedset':
@@ -105,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $setName = isset($setNames[$index]) ? $setNames[$index] : 'set' . $index;
                         $namedSets[$setName] = $set;
                     }
-                    echo json_encode($namedSets);
+                    $responseData = $namedSets;
                     break;
                 case 'namedrows':
                 case 'namedrow':
@@ -114,18 +116,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $rowName = isset($setNames[$index]) ? $setNames[$index] : 'row' . $index;
                         $namedRows[$rowName] = $set[0];
                     }
+                    $responseData = $namedRows;
                     break;
                 default:
-                    echo json_encode($data);
+                    $responseData = $data;
                     break;
             }
+
+            $status = empty($responseData) ? 'EMPTY' : 'OK';
+
+            echo json_encode([
+                'sql' => $query,
+                'status' => $status,
+                'responseType' => $responseType,
+                'message' => '',
+                'data' => $responseData
+            ]);
 
             $mysqli->close();
         } else {
             throw new Exception('Required connection parameters missing');
         }
     } catch (Exception $e) {
-        echo json_encode(['error' => $e->getMessage()]);
+        echo json_encode([
+            'sql' => isset($query) ? $query : '',
+            'status' => 'ERROR',
+            'responseType' => $responseType,
+            'message' => $e->getMessage(),
+            'data' => null
+        ]);
         exit();
     }
 } else {
