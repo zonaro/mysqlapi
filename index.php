@@ -2,7 +2,7 @@
 
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, DB-Hostname, DB-Username, DB-Password, DB-Database, DB-Port, DB-Socket, Response-Type');
+header('Access-Control-Allow-Headers: Content-Type, DB-Hostname, DB-Username, DB-Password, DB-Database, DB-Port, DB-Socket, Response-Type, Data-Names');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
