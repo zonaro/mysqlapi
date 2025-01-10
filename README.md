@@ -29,31 +29,43 @@ A resposta será no formato JSON.
 
 **Sucesso:**
 ```json
-[
-    [
-        {
-            "column1": "value1",
-            "column2": "value2",
+{
+    "sql": "SELECT `column1`, `column2`, ... FROM `table` WHERE `column3` = ?;",
+    "status": "OK",
+    "responseType": "sets",
+    "dataNames": [],
+    "message": "Data found",
+    "data": [
+        [
+            {
+                "column1": "value1",
+                "column2": "value2",
+                ...
+            },
             ...
-        },
-        ...
-    ],
-    [
-        {
-            "column1": "value1",
-            "column2": "value2",
+        ],
+        [
+            {
+                "column1": "value1",
+                "column2": "value2",
+                ...
+            },
             ...
-        },
+        ],
         ...
-    ],
-    ...
-]
+    ]
+}
 ```
 
 **Erro:**
 ```json
 {
-    "error": "Mensagem de erro aqui"
+    "sql": "SELECT `column1`, `column2`, ... FROM `table` WHERE `column3` = ?;",
+    "status": "ERROR",
+    "responseType": "sets",
+    "dataNames": [],
+    "message": "Mensagem de erro aqui",
+    "data": null
 }
 ```
 
@@ -63,59 +75,41 @@ Você pode usar os seguintes valores para o cabeçalho `Response-Type` para alte
 
 - **single:** Retorna apenas o primeiro item da primeira coluna do primeiro conjunto de dados.
 ```json
-"value1"
+{
+    "sql": "SELECT `column1`, `column2`, ... FROM `table` WHERE `column3` = ?;",
+    "status": "OK",
+    "responseType": "single",
+    "dataNames": [],
+    "message": "Data found",
+    "data": "value1"
+}
 ```
 
 - **pairs:** Retorna um array JSON de objetos com a primeira coluna como chaves e a última coluna como valores.
 ```json
-[
-    {"value1": "value2"},
-    {"value3": "value4"},
-    ...
-]
+{
+    "sql": "SELECT `column1`, `column2`, ... FROM `table` WHERE `column3` = ?;",
+    "status": "OK",
+    "responseType": "pairs",
+    "dataNames": [],
+    "message": "Data found",
+    "data": [
+        {"value1": "value2"},
+        {"value3": "value4"},
+        ...
+    ]
+}
 ```
 
 - **table:** Retorna apenas o primeiro conjunto de dados.
 ```json
-[
-    {
-        "column1": "value1",
-        "column2": "value2",
-        ...
-    },
-    ...
-]
-```
-
-- **row:** Retorna apenas a primeira linha do primeiro conjunto de dados.
-```json
 {
-    "column1": "value1",
-    "column2": "value2",
-    ...
-}
-```
-
-- **list:** Retorna um array com todos os valores da primeira coluna.
-```json
-[
-    "value1",
-    "value3",
-    ...
-]
-```
-- **namedsets:** Retorna conjuntos de dados nomeados.
-```json
-{
-    "set1": [
-        {
-            "column1": "value1",
-            "column2": "value2",
-            ...
-        },
-        ...
-    ],
-    "set2": [
+    "sql": "SELECT `column1`, `column2`, ... FROM `table` WHERE `column3` = ?;",
+    "status": "OK",
+    "responseType": "table",
+    "dataNames": [],
+    "message": "Data found",
+    "data": [
         {
             "column1": "value1",
             "column2": "value2",
@@ -126,15 +120,15 @@ Você pode usar os seguintes valores para o cabeçalho `Response-Type` para alte
 }
 ```
 
-- **namedrows:** Retorna linhas nomeadas.
+- **row:** Retorna apenas a primeira linha do primeiro conjunto de dados.
 ```json
 {
-    "row1": {
-        "column1": "value1",
-        "column2": "value2",
-        ...
-    },
-    "row2": {
+    "sql": "SELECT `column1`, `column2`, ... FROM `table` WHERE `column3` = ?;",
+    "status": "OK",
+    "responseType": "row",
+    "dataNames": [],
+    "message": "Data found",
+    "data": {
         "column1": "value1",
         "column2": "value2",
         ...
@@ -142,25 +136,99 @@ Você pode usar os seguintes valores para o cabeçalho `Response-Type` para alte
 }
 ```
 
+- **list:** Retorna um array com todos os valores da primeira coluna.
+```json
+{
+    "sql": "SELECT `column1`, `column2`, ... FROM `table` WHERE `column3` = ?;",
+    "status": "OK",
+    "responseType": "list",
+    "dataNames": [],
+    "message": "Data found",
+    "data": [
+        "value1",
+        "value3",
+        ...
+    ]
+}
+```
+- **namedsets:** Retorna conjuntos de dados nomeados.
+```json
+{
+    "sql": "SELECT `column1`, `column2`, ... FROM `table` WHERE `column3` = ?;",
+    "status": "OK",
+    "responseType": "namedsets",
+    "dataNames": ["set1", "set2"],
+    "message": "Data found",
+    "data": {
+        "set1": [
+            {
+                "column1": "value1",
+                "column2": "value2",
+                ...
+            },
+            ...
+        ],
+        "set2": [
+            {
+                "column1": "value1",
+                "column2": "value2",
+                ...
+            },
+            ...
+        ]
+    }
+}
+```
+
+- **namedrows:** Retorna linhas nomeadas.
+```json
+{
+    "sql": "SELECT `column1`, `column2`, ... FROM `table` WHERE `column3` = ?;",
+    "status": "OK",
+    "responseType": "namedrows",
+    "dataNames": ["row1", "row2"],
+    "message": "Data found",
+    "data": {
+        "row1": {
+            "column1": "value1",
+            "column2": "value2",
+            ...
+        },
+        "row2": {
+            "column1": "value1",
+            "column2": "value2",
+            ...
+        }
+    }
+}
+```
+
 - **default:** Retorna todos os conjuntos de dados como um array JSON (comportamento padrão).
 ```json
-[
-    [
-        {
-            "column1": "value1",
-            "column2": "value2",
+{
+    "sql": "SELECT `column1`, `column2`, ... FROM `table` WHERE `column3` = ?;",
+    "status": "OK",
+    "responseType": "sets",
+    "dataNames": [],
+    "message": "Data found",
+    "data": [
+        [
+            {
+                "column1": "value1",
+                "column2": "value2",
+                ...
+            },
             ...
-        },
-        ...
-    ],
-    [
-        {
-            "column1": "value1",
-            "column2": "value2",
+        ],
+        [
+            {
+                "column1": "value1",
+                "column2": "value2",
+                ...
+            },
             ...
-        },
+        ],
         ...
-    ],
-    ...
-]
+    ]
+}
 ```
