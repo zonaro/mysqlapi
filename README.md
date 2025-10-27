@@ -16,7 +16,7 @@ Esta API aceita requisições POST com um payload em texto simples contendo uma 
 - **Response-Type:** O tipo de resposta desejado (opcional, padrão é SETS).
 - **Data-Names:** Uma lista separada por virgula (,) ou ponto e virgula (;) com os nomes de cada conjunto de dados (para `namedSets` e `namedRows`).
 
-**URL:** `https://sqlapi.kaizonaro.com/`
+ 
 
 **Corpo:**
 ```sql
