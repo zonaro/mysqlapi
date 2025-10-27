@@ -20,7 +20,7 @@ Esta API aceita requisições POST com um payload em texto simples contendo uma 
 
 **Corpo:**
 ```sql
-SELECT `column1`, `column2`, ... FROM `table` WHERE `column3` = ?;
+SELECT `column1`, `column2`,  FROM `table` WHERE `column3` = ?;
 ```
 
 ## Resposta
@@ -30,7 +30,7 @@ A resposta será no formato JSON.
 **Sucesso:**
 ```json
 {
-    "sql": "SELECT `column1`, `column2`, ... FROM `table` WHERE `column3` = ?;",
+    "sql": "SELECT `column1`, `column2`,  FROM `table` WHERE `column3` = ?;",
     "status": "OK",
     "responseType": "sets",
     "dataNames": [],
@@ -40,19 +40,19 @@ A resposta será no formato JSON.
             {
                 "column1": "value1",
                 "column2": "value2",
-                ...
+                
             },
-            ...
+            
         ],
         [
             {
                 "column1": "value1",
                 "column2": "value2",
-                ...
+                
             },
-            ...
+            
         ],
-        ...
+        
     ]
 }
 ```
@@ -60,7 +60,7 @@ A resposta será no formato JSON.
 **Erro:**
 ```json
 {
-    "sql": "SELECT `column1`, `column2`, ... FROM `table` WHERE `column3` = ?;",
+    "sql": "SELECT `column1`, `column2`,  FROM `table` WHERE `column3` = ?;",
     "status": "ERROR",
     "responseType": "sets",
     "dataNames": [],
@@ -76,7 +76,7 @@ Você pode usar os seguintes valores para o cabeçalho `Response-Type` para alte
 - **single:** Retorna apenas o primeiro item da primeira coluna do primeiro conjunto de dados.
 ```json
 {
-    "sql": "SELECT `column1`, `column2`, ... FROM `table` WHERE `column3` = ?;",
+    "sql": "SELECT `column1`, `column2`,  FROM `table` WHERE `column3` = ?;",
     "status": "OK",
     "responseType": "single",
     "dataNames": [],
@@ -88,7 +88,7 @@ Você pode usar os seguintes valores para o cabeçalho `Response-Type` para alte
 - **pairs:** Retorna um array JSON de objetos com a primeira coluna como chaves e a última coluna como valores.
 ```json
 {
-    "sql": "SELECT `column1`, `column2`, ... FROM `table` WHERE `column3` = ?;",
+    "sql": "SELECT `column1`, `column2`,  FROM `table` WHERE `column3` = ?;",
     "status": "OK",
     "responseType": "pairs",
     "dataNames": [],
@@ -96,7 +96,7 @@ Você pode usar os seguintes valores para o cabeçalho `Response-Type` para alte
     "data": [
         {"value1": "value2"},
         {"value3": "value4"},
-        ...
+        
     ]
 }
 ```
@@ -104,7 +104,7 @@ Você pode usar os seguintes valores para o cabeçalho `Response-Type` para alte
 - **table:** Retorna apenas o primeiro conjunto de dados.
 ```json
 {
-    "sql": "SELECT `column1`, `column2`, ... FROM `table` WHERE `column3` = ?;",
+    "sql": "SELECT `column1`, `column2`,  FROM `table` WHERE `column3` = ?;",
     "status": "OK",
     "responseType": "table",
     "dataNames": [],
@@ -113,9 +113,9 @@ Você pode usar os seguintes valores para o cabeçalho `Response-Type` para alte
         {
             "column1": "value1",
             "column2": "value2",
-            ...
+            
         },
-        ...
+        
     ]
 }
 ```
@@ -123,7 +123,7 @@ Você pode usar os seguintes valores para o cabeçalho `Response-Type` para alte
 - **row:** Retorna apenas a primeira linha do primeiro conjunto de dados.
 ```json
 {
-    "sql": "SELECT `column1`, `column2`, ... FROM `table` WHERE `column3` = ?;",
+    "sql": "SELECT `column1`, `column2`,  FROM `table` WHERE `column3` = ?;",
     "status": "OK",
     "responseType": "row",
     "dataNames": [],
@@ -131,7 +131,7 @@ Você pode usar os seguintes valores para o cabeçalho `Response-Type` para alte
     "data": {
         "column1": "value1",
         "column2": "value2",
-        ...
+        
     }
 }
 ```
@@ -139,7 +139,7 @@ Você pode usar os seguintes valores para o cabeçalho `Response-Type` para alte
 - **list:** Retorna um array com todos os valores da primeira coluna.
 ```json
 {
-    "sql": "SELECT `column1`, `column2`, ... FROM `table` WHERE `column3` = ?;",
+    "sql": "SELECT `column1`, `column2`,  FROM `table` WHERE `column3` = ?;",
     "status": "OK",
     "responseType": "list",
     "dataNames": [],
@@ -147,14 +147,14 @@ Você pode usar os seguintes valores para o cabeçalho `Response-Type` para alte
     "data": [
         "value1",
         "value3",
-        ...
+        
     ]
 }
 ```
 - **namedsets:** Retorna conjuntos de dados nomeados.
 ```json
 {
-    "sql": "SELECT `column1`, `column2`, ... FROM `table` WHERE `column3` = ?;",
+    "sql": "SELECT `column1`, `column2`,  FROM `table` WHERE `column3` = ?;",
     "status": "OK",
     "responseType": "namedsets",
     "dataNames": ["set1", "set2"],
@@ -164,17 +164,17 @@ Você pode usar os seguintes valores para o cabeçalho `Response-Type` para alte
             {
                 "column1": "value1",
                 "column2": "value2",
-                ...
+                
             },
-            ...
+            
         ],
         "set2": [
             {
                 "column1": "value1",
                 "column2": "value2",
-                ...
+                
             },
-            ...
+            
         ]
     }
 }
@@ -183,7 +183,7 @@ Você pode usar os seguintes valores para o cabeçalho `Response-Type` para alte
 - **namedrows:** Retorna linhas nomeadas.
 ```json
 {
-    "sql": "SELECT `column1`, `column2`, ... FROM `table` WHERE `column3` = ?;",
+    "sql": "SELECT `column1`, `column2`,  FROM `table` WHERE `column3` = ?;",
     "status": "OK",
     "responseType": "namedrows",
     "dataNames": ["row1", "row2"],
@@ -192,12 +192,12 @@ Você pode usar os seguintes valores para o cabeçalho `Response-Type` para alte
         "row1": {
             "column1": "value1",
             "column2": "value2",
-            ...
+            
         },
         "row2": {
             "column1": "value1",
             "column2": "value2",
-            ...
+            
         }
     }
 }
@@ -206,7 +206,7 @@ Você pode usar os seguintes valores para o cabeçalho `Response-Type` para alte
 - **default:** Retorna todos os conjuntos de dados como um array JSON (comportamento padrão).
 ```json
 {
-    "sql": "SELECT `column1`, `column2`, ... FROM `table` WHERE `column3` = ?;",
+    "sql": "SELECT `column1`, `column2`,  FROM `table` WHERE `column3` = ?;",
     "status": "OK",
     "responseType": "sets",
     "dataNames": [],
@@ -216,19 +216,19 @@ Você pode usar os seguintes valores para o cabeçalho `Response-Type` para alte
             {
                 "column1": "value1",
                 "column2": "value2",
-                ...
+                
             },
-            ...
+            
         ],
         [
             {
                 "column1": "value1",
                 "column2": "value2",
-                ...
+                
             },
-            ...
+            
         ],
-        ...
+        
     ]
 }
 ```
