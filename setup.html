@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>MySqlApi · Gerar conexão segura</title>
+  <link rel="stylesheet" href="assets/setup.css">
+  <script src="assets/setup.js" defer></script>
+</head>
+<body>
+  <main>
+    <header>
+      <span class="eyebrow">MySqlApi <span class="pill">v0.2</span></span>
+      <h1>Seu banco de dados.<br><span>Sua chave.</span></h1>
+      <p>Gere um token criptografado para consultar seu próprio MySQL ou MariaDB por HTTP. As credenciais são criptografadas no navegador e não são enviadas durante a criação do token.</p>
+    </header>
+    <section class="card">
+      <h2>1. Dados de conexão</h2>
+      <form id="connection-form">
+        <div class="fields">
+          <label class="wide">Host do banco<input name="host" placeholder="db.exemplo.com" required autocomplete="off" maxlength="253"></label>
+          <label>Porta<input name="port" type="number" min="1" max="65535" value="3306" required></label>
+          <label>Banco de dados<input name="database" required autocomplete="off" maxlength="255"></label>
+          <label>Usuário<input name="user" required autocomplete="off" maxlength="255"></label>
+          <label>Senha<input name="password" type="password" autocomplete="new-password" maxlength="255"></label>
+          <label>Validade do token<select name="days" id="days"><option value="7">7 dias</option><option value="30">30 dias</option><option value="90" selected>90 dias</option></select></label>
+        </div>
+        <button type="submit" id="generate"><span>Gerar token seguro</span><span aria-hidden="true">→</span></button>
+        <p class="hint">Esta página não armazena suas credenciais. Uma nova chave aleatória é criada a cada token.</p>
+      </form>
+    </section>
+    <section class="card output" id="output" hidden aria-live="polite">
+      <h2>2. Guarde seu token e sua chave</h2>
+      <p>Você precisará dos dois valores para executar consultas. Guarde-os separadamente em um gerenciador de segredos — nunca os coloque em JavaScript público.</p>
+      <label>Token de conexão<textarea id="token" readonly rows="4" spellcheck="false"></textarea></label>
+      <button type="button" class="secondary" data-copy="token">Copiar token</button>
+      <label>Chave do usuário<textarea id="user-key" readonly rows="2" spellcheck="false"></textarea></label>
+      <button type="button" class="secondary" data-copy="user-key">Copiar chave</button>
+      <h3>Exemplo de requisição</h3>
+      <pre id="example"></pre>
+      <button type="button" class="secondary" data-copy="example">Copiar exemplo</button>
+    </section>
+    <p class="notice" id="message" role="status"></p>
+    <footer>O token e a chave não substituem HTTPS nem a autenticação da API. <a href="https://github.com/zonaro/mysqlapi/blob/main/SECURITY.md" rel="noreferrer noopener">Documentação e segurança</a></footer>
+  </main>
+</body>
+</html>

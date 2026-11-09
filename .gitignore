@@ -1,0 +1,6 @@
+.env
+*.pem
+*.key
+*.log
+.phpunit.cache/
+vendor/
