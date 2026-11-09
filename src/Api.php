@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/Crypto.php';
+require_once __DIR__ . '/Installer.php';
 
 final class MysqlApiHttpException extends RuntimeException
 {
@@ -300,11 +301,49 @@ function mysqlapi_handle_request(): void
         header('Access-Control-Max-Age: 600');
     }
     try {
+        $installed = mysqlapi_load_env();
         $https = strtolower((string) ($_SERVER['HTTPS'] ?? ''));
         if (!mysqlapi_env_enabled('MYSQLAPI_ALLOW_HTTP') && !in_array($https, ['on', '1'], true)) {
             throw new MysqlApiHttpException(403, 'HTTPS is required');
         }
         $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+        if (!$installed) {
+            if ($method === 'GET' && !isset($_GET['public-key'])) {
+                try {
+                    mysqlapi_bootstrap_token();
+                    mysqlapi_install_page();
+                } catch (RuntimeException $e) {
+                    mysqlapi_install_page('Não foi possível preparar a chave de instalação. Configure MYSQLAPI_INSTALL_TOKEN no ambiente PHP ou libere a escrita na pasta privada.');
+                }
+                return;
+            }
+            if ($method === 'POST' && isset($_GET['install'])) {
+                if ((int) ($_SERVER['CONTENT_LENGTH'] ?? 0) > 4096) {
+                    throw new MysqlApiHttpException(413, 'Installation request is too large');
+                }
+                try {
+                    $token = $_POST['install_token'] ?? null;
+                    $origins = $_POST['allowed_origins'] ?? '';
+                    if (!is_string($token) || !is_string($origins)) {
+                        throw new InvalidArgumentException('Invalid installation form');
+                    }
+                    $apiKey = mysqlapi_install_configuration($token, $origins);
+                    mysqlapi_install_page(null, $apiKey);
+                } catch (InvalidArgumentException $e) {
+                    http_response_code(400);
+                    mysqlapi_install_page('Chave de instalação ou origens CORS inválidas.');
+                } catch (RuntimeException $e) {
+                    error_log('[mysqlapi] install request=' . $requestId . ' class=' . get_class($e));
+                    http_response_code(503);
+                    mysqlapi_install_page('Não foi possível concluir a instalação. Confira as permissões da pasta acima do serviço e tente novamente.');
+                }
+                return;
+            }
+            throw new MysqlApiHttpException(503, 'Service is not installed');
+        }
+        if (isset($_GET['install'])) {
+            throw new MysqlApiHttpException(404, 'Installer is disabled after configuration');
+        }
         if ($method === 'OPTIONS') {
             http_response_code(204);
             return;

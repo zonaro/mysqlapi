@@ -28,6 +28,8 @@ Por padrão, o PHP rejeita hosts privados, reservados e loopback e sockets Unix.
 ## Transporte e credenciais
 
 - **HTTPS obrigatório** por padrão e HSTS recomendado no proxy. O override HTTP serve só para desenvolvimento em `localhost`.
+- O wizard exige uma **chave de instalação** fora do diretório público (ou configurada no ambiente PHP), para impedir que o primeiro visitante configure a instância. O `.env` e a chave privada são criados fora do document root, com permissões `0600`; o segredo de bootstrap temporário é removido depois da instalação.
+- Se o host não permitir gravar arquivos acima do diretório público, defina `MYSQLAPI_ENV_FILE` apontando para uma pasta privada gravável. **Nunca aponte para um diretório publicado pelo servidor web.**
 - Exija TLS de MySQL quando o banco for remoto (`MYSQLAPI_MYSQL_TLS_REQUIRED=1` e um `MYSQLAPI_MYSQL_CA_FILE` confiável). Confirme que a implantação realmente valida certificados na combinação PHP/mysqlnd/servidor utilizada.
 - Não guarde token, chave do usuário, API key, SQL ou resultados em JavaScript público, logs ou repositórios.
 - Não configure as chaves privadas dentro do document root; aplique permissões restritivas ao arquivo e ao usuário do PHP.

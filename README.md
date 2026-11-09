@@ -13,29 +13,37 @@ Na v0.2, as credenciais do banco **não são enviadas diretamente na requisiçã
 - Navegador com Web Crypto (HTTPS ou `localhost`) para gerar tokens.
 - Um banco MySQL/MariaDB acessível a partir do servidor, com permissões adequadas.
 
-## Instalação
+## Instalação pelo navegador
 
-1. Publique os arquivos em um virtual host HTTPS. O `index.php` é a entrada da API e a página de configuração.
-2. Gere o par de chaves do serviço em um diretório existente **fora do document root**:
+1. Publique os arquivos em um virtual host **HTTPS**. O `index.php` é tanto a API quanto o painel de configuração.
+2. Acesse `https://seu-dominio/`. **Sem `.env`**, aparece automaticamente o instalador. Ele verifica os requisitos PHP e prepara uma chave de instalação aleatória.
+3. Abra o gerenciador de arquivos/SSH da hospedagem e leia o arquivo `.mysqlapi-<identificador>-install-token` criado **na pasta acima do serviço**. O nome exato aparece na página; o conteúdo secreto nunca é exibido publicamente. Se preferir, configure `MYSQLAPI_INSTALL_TOKEN` no ambiente PHP com pelo menos 24 caracteres para evitar o arquivo de bootstrap.
+4. Informe essa chave no formulário, opcionalmente configure as origens CORS e clique em **Instalar serviço**.
+5. O instalador cria automaticamente **o `.env` e a chave privada fora da pasta pública**, com permissões restritas. Guarde a API key gerada, mostrada apenas no resultado da instalação.
+6. Ao atualizar `https://seu-dominio/`, a página passa a ser o **gerador de tokens de banco**. Informe host, usuário, senha e banco do MySQL/MariaDB. O navegador criptografa a conexão localmente e exibe o token e a chave do usuário, que devem ser guardados separadamente.
+7. Antes de abrir o serviço ao público, configure o firewall para **bloquear saídas para redes privadas, loopback, link-local e endereços de metadados** nas portas de destino MySQL. A validação de DNS no PHP é somente uma proteção adicional e não impede DNS rebinding por si só.
 
-   ```bash
-   php bin/generate-keypair.php /caminho/privado/mysqlapi-private.pem
-   ```
+O `.env` fica, por padrão, **um nível acima da raiz pública do servidor** (`DOCUMENT_ROOT`). Se a aplicação estiver em uma subpasta da raiz pública, o instalador também usa a pasta acima do `DOCUMENT_ROOT`, nunca a própria raiz pública. Para definir outro local privado, configure `MYSQLAPI_ENV_FILE` no ambiente PHP antes da instalação. O serviço rejeita `.env` em diretórios reconhecidos como públicos.
 
-3. Configure as variáveis de ambiente do processo PHP:
+O instalador não permite sobrescrever uma instalação existente. A chave de instalação temporária é removida após a conclusão. Para recriar ou migrar a instalação, guarde os segredos antigos e faça um procedimento manual controlado — **não exclua o `.env` de produção para repetir o wizard**, pois isso pode tornar os tokens existentes inutilizáveis.
 
-   ```text
-   MYSQLAPI_PRIVATE_KEY_FILE=/caminho/privado/mysqlapi-private.pem
-   MYSQLAPI_API_KEYS=uma-chave-longa-e-aleatoria-do-servico
-   MYSQLAPI_ALLOWED_ORIGINS=https://app.exemplo.com
-   ```
+### Instalação manual (alternativa)
 
-   Gere uma API key com um gerador criptográfico (por exemplo, `openssl rand -hex 32`). Ela é **diferente** da chave do usuário que participa da criptografia do token.
+Se você já possui automação de deploy, pode gerar a chave P-256 via CLI e configurar as variáveis de ambiente tradicionais, desde que exista o `.env` no caminho esperado para marcar a instalação:
 
-4. Configure o firewall para **bloquear saídas para redes privadas, loopback, link-local e endereços de metadados** nas portas de destino MySQL. A validação de DNS no PHP é somente uma proteção adicional e não impede DNS rebinding por si só.
-5. Acesse `https://seu-dominio/` e preencha o formulário. O navegador gera o token e a chave do usuário, sem transmitir as credenciais na etapa de criação. Salve ambos separadamente.
+```bash
+php bin/generate-keypair.php /caminho/privado/mysqlapi-private.pem
+```
 
-Sem `MYSQLAPI_PRIVATE_KEY_FILE`, a geração/uso de tokens não funciona. Sem `MYSQLAPI_API_KEYS`, as consultas retornam **503**, exceto se o operador ativar explicitamente `MYSQLAPI_ALLOW_UNAUTHENTICATED=1` para um experimento local.
+No `.env` privado (fora do document root):
+
+```text
+MYSQLAPI_PRIVATE_KEY_FILE="/caminho/privado/mysqlapi-private.pem"
+MYSQLAPI_API_KEYS="uma-chave-longa-e-aleatoria-do-servico"
+MYSQLAPI_ALLOWED_ORIGINS="https://app.exemplo.com"
+```
+
+Gere a API key com um gerador criptográfico (por exemplo, `openssl rand -hex 32`). Ela é **diferente** da chave do usuário que participa da criptografia do token. Sem API keys, as consultas retornam **503**, salvo `MYSQLAPI_ALLOW_UNAUTHENTICATED=1` para experimentos locais.
 
 ### Requisição
 
@@ -108,10 +116,12 @@ O projeto aceita múltiplas instruções SQL propositalmente. Não use `?` como 
 
 ## Configuração
 
-Todas as configurações são variáveis de ambiente do processo PHP; o projeto não carrega `.env` automaticamente.
+O serviço carrega automaticamente o `.env` privado quando ele existe, sem sobrescrever variáveis já definidas no processo PHP. Também é possível configurar tudo diretamente nas variáveis do ambiente de hospedagem.
 
 | Variável | Padrão | Finalidade |
 | --- | --- | --- |
+| `MYSQLAPI_ENV_FILE` | `.env` acima do document root | Local alternativo para o `.env` (fora do document root) |
+| `MYSQLAPI_INSTALL_TOKEN` | Gerado em arquivo privado | Chave de bootstrap para autorizar a primeira instalação web |
 | `MYSQLAPI_PRIVATE_KEY_FILE` | Obrigatória | Caminho absoluto para a chave privada EC P-256 fora do diretório público |
 | `MYSQLAPI_API_KEYS` | Obrigatória | API keys do serviço separadas por vírgula |
 | `MYSQLAPI_ALLOW_UNAUTHENTICATED` | `0` | Desativa autenticação **somente para experimento local** |
@@ -132,19 +142,17 @@ A chave privada atual identifica o servidor por um `kid`. Rotacioná-la invalida
 
 ## Desenvolvimento e testes
 
-Para testar localmente, use um servidor PHP apenas em loopback:
+Para testar localmente, use um servidor PHP apenas em loopback (na primeira visita, siga o instalador; o token de instalação é gerado na pasta acima do projeto):
 
 ```bash
-MYSQLAPI_ALLOW_HTTP=1 MYSQLAPI_ALLOW_UNAUTHENTICATED=1 \
-MYSQLAPI_PRIVATE_KEY_FILE=/caminho/privado/mysqlapi-private.pem \
-php -S 127.0.0.1:8080
+MYSQLAPI_ALLOW_HTTP=1 php -S 127.0.0.1:8080
 ```
 
 ```bash
 php tests/run.php
 ```
 
-Os testes incluem formatos JSON, autenticação, limites, destinos bloqueados e um token produzido com **WebCrypto/Node** e descriptografado por **PHP/OpenSSL**. O workflow de CI executa testes e verificações de sintaxe. Não existe teste de integração com MySQL real incluído nesta prova de conceito.
+Os testes incluem formatos JSON, autenticação, limites, destinos bloqueados, instalação do `.env` e um token produzido com **WebCrypto/Node** e descriptografado por **PHP/OpenSSL**. O workflow de CI executa testes de unidade, verificações de sintaxe e um teste HTTP do wizard (`GET` → instalação → gerador). Não existe teste de integração com MySQL real incluído nesta prova de conceito.
 
 ## Segurança
 

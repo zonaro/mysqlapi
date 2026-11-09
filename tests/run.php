@@ -83,4 +83,48 @@ try {
     @unlink($keyFile);
 }
 
+// Installation state and .env loading are isolated in a temporary directory.
+$installDir = sys_get_temp_dir() . '/mysqlapi-install-test-' . bin2hex(random_bytes(8));
+mkdir($installDir, 0700);
+putenv('MYSQLAPI_ENV_FILE=' . $installDir . '/.env');
+putenv('MYSQLAPI_INSTALL_TOKEN');
+putenv('MYSQLAPI_API_KEYS');
+putenv('MYSQLAPI_PRIVATE_KEY_FILE');
+try {
+    check(!mysqlapi_load_env(), 'not installed before wizard');
+    $installSecret = mysqlapi_bootstrap_token();
+    check(strlen($installSecret) === 64 && is_file(mysqlapi_install_token_path()), 'bootstrap token created in private directory');
+    check(mysqlapi_bootstrap_token() === $installSecret, 'bootstrap token remains stable');
+    check(fails(fn () => mysqlapi_install_configuration('invalid')), 'invalid installation token rejected');
+    $generatedApiKey = mysqlapi_install_configuration($installSecret, 'https://app.example.com');
+    check(!file_exists(mysqlapi_install_token_path()), 'bootstrap token removed after installation');
+    check(strlen($generatedApiKey) === 64, 'API key generated');
+    check(is_file(mysqlapi_env_path()), '.env written outside application');
+    check(mysqlapi_load_env(), '.env loaded');
+    check(getenv('MYSQLAPI_API_KEYS') === $generatedApiKey, 'generated API key loaded');
+    check(getenv('MYSQLAPI_ALLOWED_ORIGINS') === 'https://app.example.com', 'allowed origins loaded');
+    check(is_file((string) getenv('MYSQLAPI_PRIVATE_KEY_FILE')), 'private key created');
+    check(mysqlapi_server_key()['kid'] !== '', 'installed key is readable');
+    $reinstalled = false;
+    try {
+        mysqlapi_install_configuration($installSecret);
+    } catch (RuntimeException $e) {
+        $reinstalled = true;
+    }
+    check($reinstalled, 'installer cannot overwrite installed service');
+} finally {
+    $privatePath = (string) getenv('MYSQLAPI_PRIVATE_KEY_FILE');
+    if (str_starts_with($privatePath, $installDir . '/')) {
+        @unlink($privatePath);
+    }
+    @unlink($installDir . '/.env');
+    @unlink(mysqlapi_install_token_path());
+    @rmdir($installDir);
+    putenv('MYSQLAPI_ENV_FILE');
+    putenv('MYSQLAPI_INSTALL_TOKEN');
+    putenv('MYSQLAPI_API_KEYS');
+    putenv('MYSQLAPI_PRIVATE_KEY_FILE');
+    putenv('MYSQLAPI_ALLOWED_ORIGINS');
+}
+
 echo "OK: {$tests} tests passed\n";

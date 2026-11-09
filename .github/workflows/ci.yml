@@ -17,3 +17,5 @@ jobs:
         run: node --check assets/setup.js && node --check tests/crypto-vector.mjs
       - name: Unit and interoperability tests
         run: php tests/run.php
+      - name: HTTP installation wizard smoke test
+        run: bash tests/http-smoke.sh
